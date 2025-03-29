@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+
+Resources:
+  API:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+
+  TestFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: main.handler
+      Runtime: provided.al2
+      CodeUri: ./function
+      Layers:
+        - arn:aws:lambda:eu-north-1:154698795175:layer:deno:1
+      Events:
+        TestAPI:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /
+            Method: GET
+
+Outputs:
+  Region:
+    Description: "Region"
+    Value: !Ref AWS::Region
+
+  ApiId:
+    Description: "API ID"
+    Value: !Ref API
+
+  ApiUrl:
+    Description: "API endpoint URL for Prod environment"
+    Value: !Sub "https://${API}.execute-api.${AWS::Region}.amazonaws.com/dev/"
